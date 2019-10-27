@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  -for(let i=0;i<title.length;i++)
+    a(href=title[i].href target='_blank')
+      img(src=title[i].imgSrc)
+      p title : #{title[i].title}
+      p salePercentage : #{title[i].sale}
+      p originalPrice : #{title[i].original}
+      p salePrice : #{title[i].salePrice}
+    br
