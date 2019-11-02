@@ -5,7 +5,12 @@ block content
     a(href=title[i].href target='_blank')
       img(src=title[i].imgSrc)
       p title : #{title[i].title}
-      p salePercentage : #{title[i].sale}
-      p originalPrice : #{title[i].original}
-      p salePrice : #{title[i].salePrice}
+      p salePercentage : #{title[i].sale_percentage}
+      p originalPrice : #{title[i].original_price}
+      p salePrice : #{title[i].sale_price}
+      p url : #{title[i].url}
+      p
+        img(src=title[i].url_img)
+      p amount_review : #{title[i].amount_review}
+
     br
