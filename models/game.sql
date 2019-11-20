@@ -1,7 +1,9 @@
+drop table if exists game;
+
 create table game(
     id int auto_increment primary key,
     title char(200) not null,
-    amount_review int not null,
+    amount_review int default null,
     url_steam char(200) default null,
     url_steam_img char(200) default null,
     url_direct char(200) default null,
