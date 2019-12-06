@@ -24,13 +24,18 @@ exports.checkGame = async (gameList) => {
     }
 };
 
-
 const checkExistGame = async (game) => {
     if(!game)
         return 0;
     if(!game.original_price)
         return 0;
-    const sqlSelect = 'select count(*) from game where title="'+game.title+'" and url_'+game.site+'="'+game.url+'"';
+    if(game.site==="humble"){
+        game.original_price = game.exchange_original_price;
+    }
+    const sqlSelect = 'select count(*) from game where title="' + game.title + '" and (original_price <= ' +
+        '"' + (game.original_price + game.original_price * 0.2) + '" and original_price >= "'
+        + (game.original_price - game.original_price * 0.2) + '")';
+
     const sqlInsert= 'insert into game (title, amount_review, url_'+game.site+', url_'+game.site+'_img, original_price) values ' +
         '("'+game.title+'", "'+game.amount_review+'", "'+
         game.url+'", "'+ game.url_img+'", "'+game.original_price+'")';
@@ -40,12 +45,42 @@ const checkExistGame = async (game) => {
                 console.log(error);
             }
             const result =await Object.values( JSON.parse( JSON.stringify(results[0])))[0];
-            if(result===0)
-            {
+            if(result===0) {
                 await connection.query(sqlInsert);
                 await connection.commit();
+                resolve();
             }
-            resolve();
+            else {
+                let sqlUpdate;
+                if(game.site==="steam"){
+                    sqlUpdate = 'UPDATE game ' +
+                        'SET amount_review = "'+game.amount_review+'", ' +
+                        'original_price = "'+game.original_price +'", '+
+                        'url_'+game.site+'= "'+game.url +'", '+
+                        'url_'+game.site+'_img = "'+game.url_img+'" '+
+                        'WHERE title="' + game.title + '" and (original_price <= ' +
+                        '"' + (game.original_price + game.original_price * 0.2) + '" and original_price >= "'
+                        + (game.original_price - game.original_price * 0.2) + '")';
+                } else if(game.site==="humble"){
+                    sqlUpdate = 'UPDATE game ' +
+                        'SET url_'+game.site+'= "'+game.url +'", '+
+                        'url_'+game.site+'_img = "'+game.url_img+'" '+
+                        'WHERE title="' + game.title + '" and (original_price <= ' +
+                        '"' + (game.original_price + game.original_price * 0.2) + '" and original_price >= "'
+                        + (game.original_price - game.original_price * 0.2) + '")';
+                } else {
+                    sqlUpdate = 'UPDATE game ' +
+                        'SET original_price = "'+game.original_price +'", '+
+                        'url_'+game.site+'= "'+game.url +'", '+
+                        'url_'+game.site+'_img = "'+game.url_img+'" '+
+                        'WHERE title="' + game.title + '" and (original_price <= ' +
+                        '"' + (game.original_price + game.original_price * 0.2) + '" and original_price >= "'
+                        + (game.original_price - game.original_price * 0.2) + '")';
+                }
+                await connection.query(sqlUpdate);
+                await connection.commit();
+                resolve();
+            }
         });
     })
 };
@@ -63,6 +98,7 @@ const checkExistSaleInfo = async (game,index) => {
         await connection.query(sql, async (error, results)=> {
             if (error) {
                 console.log(error);
+                resolve();
                 return;
             }
             if(!results) {
@@ -81,7 +117,7 @@ const checkExistSaleInfo = async (game,index) => {
                     if(!results[0]){
                         return;
                     }
-                    const game_id = Object.values(results[0])[0];
+                    const game_id = await Object.values(results[0])[0];
                     const sql = 'select id from site where name="'+game.site+'"';
                     await connection.query(sql, async (err, results) => {
                         if (err) {

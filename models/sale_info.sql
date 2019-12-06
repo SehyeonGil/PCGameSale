@@ -7,7 +7,7 @@ create table sale_info(
     start_date datetime,
     end_date datetime,
     sale_percentage int not null,
-    sale_price int not null,
+    sale_price decimal(10,2) not null,
     FOREIGN KEY (game_id) REFERENCES game (id),
     FOREIGN KEY (site_id) REFERENCES site (id)
 );
