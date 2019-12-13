@@ -1,7 +1,5 @@
 const axios = require("axios");
-const phantom = require("phantom");
 const puppeteer = require('puppeteer');
-const sleep = require('util').promisify(setTimeout);
 
 
 exports.getHtml = async (url) => {

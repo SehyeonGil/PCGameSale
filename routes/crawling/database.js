@@ -32,19 +32,23 @@ const checkExistGame = async (game) => {
     if(game.site==="humble"){
         game.original_price = game.exchange_original_price;
     }
-    const sqlSelect = 'select count(*) from game where title="' + game.title + '" and (original_price <= ' +
-        '"' + (game.original_price + game.original_price * 0.2) + '" and original_price >= "'
-        + (game.original_price - game.original_price * 0.2) + '")';
+    const minOriginalPrice = game.original_price - game.original_price * 0.2;
+    const maxOriginalPrice = +game.original_price + (game.original_price * 0.2);
+    const sqlSelect = 'select count(*) from game where title="' + game.title + '" ' +
+        'and (original_price <= "' + maxOriginalPrice + '"' +
+        ' and original_price >= "' + minOriginalPrice + '")';
 
     const sqlInsert= 'insert into game (title, amount_review, url_'+game.site+', url_'+game.site+'_img, original_price) values ' +
         '("'+game.title+'", "'+game.amount_review+'", "'+
         game.url+'", "'+ game.url_img+'", "'+game.original_price+'")';
     return new Promise(async (resolve, reject) => {
         await connection.query(sqlSelect, async (error, results)=> {
+
             if (error) {
                 console.log(error);
             }
             const result =await Object.values( JSON.parse( JSON.stringify(results[0])))[0];
+
             if(result===0) {
                 await connection.query(sqlInsert);
                 await connection.commit();
@@ -59,23 +63,23 @@ const checkExistGame = async (game) => {
                         'url_'+game.site+'= "'+game.url +'", '+
                         'url_'+game.site+'_img = "'+game.url_img+'" '+
                         'WHERE title="' + game.title + '" and (original_price <= ' +
-                        '"' + (game.original_price + game.original_price * 0.2) + '" and original_price >= "'
-                        + (game.original_price - game.original_price * 0.2) + '")';
+                        '"' + maxOriginalPrice + '" and original_price >= "'
+                        + minOriginalPrice + '")';
                 } else if(game.site==="humble"){
                     sqlUpdate = 'UPDATE game ' +
                         'SET url_'+game.site+'= "'+game.url +'", '+
                         'url_'+game.site+'_img = "'+game.url_img+'" '+
                         'WHERE title="' + game.title + '" and (original_price <= ' +
-                        '"' + (game.original_price + game.original_price * 0.2) + '" and original_price >= "'
-                        + (game.original_price - game.original_price * 0.2) + '")';
+                        '"' + maxOriginalPrice + '" and original_price >= "'
+                        + minOriginalPrice + '")';
                 } else {
                     sqlUpdate = 'UPDATE game ' +
                         'SET original_price = "'+game.original_price +'", '+
                         'url_'+game.site+'= "'+game.url +'", '+
                         'url_'+game.site+'_img = "'+game.url_img+'" '+
                         'WHERE title="' + game.title + '" and (original_price <= ' +
-                        '"' + (game.original_price + game.original_price * 0.2) + '" and original_price >= "'
-                        + (game.original_price - game.original_price * 0.2) + '")';
+                        '"' + maxOriginalPrice + '" and original_price >= "'
+                        + minOriginalPrice + '")';
                 }
                 await connection.query(sqlUpdate);
                 await connection.commit();
