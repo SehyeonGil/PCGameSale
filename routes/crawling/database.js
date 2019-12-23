@@ -29,6 +29,8 @@ const checkExistGame = async (game) => {
         return 0;
     if(!game.original_price)
         return 0;
+    if(!game.sale_price)
+        return 0;
     if(game.site==="humble"){
         game.original_price = game.exchange_original_price;
     }

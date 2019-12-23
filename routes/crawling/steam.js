@@ -49,7 +49,7 @@ const getSteamSaleListUrl = async (url,index) => {
                     //positive_review = null;
                     amount_review = 0;
                 }
-                const title = $(this).find('span.title').text().replace(/[™®🐻🌀]/g, "")
+                const title = $(this).find('span.title').text().replace(/[™®🐻🌀❤]/g, "")
                     .replace(/["]/g, "'").trim();
                 let url = $(this).attr('href');
                 url=url.substring(0, url.indexOf('?'));
